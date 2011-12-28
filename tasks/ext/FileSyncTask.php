@@ -184,8 +184,17 @@ class FileSyncTask extends Task
         
         $output = array();
         $return = null;
-        foreach ($command as $comm) exec($comm, $output, $return);
-		print_r($return);
+        foreach ($command as $comm)
+		{
+			echo 'Cmd'."\r\n";
+			echo $comm."\r\n";
+			$output = array();
+			exec($comm, $output, $return);
+			echo 'Output'."\r\n";
+			print_r($output);
+			echo 'Return'."\r\n";
+			print_r($return);
+		}
 		return true;
         // if ($return != 0) {
             // $this->log('Task exited with code: ' . $return, Project::MSG_INFO);
@@ -239,7 +248,7 @@ class FileSyncTask extends Task
         $this->setOptions($options);
 		
         $project = $this->getProject();
-		$sources=$dests=array();
+		$multrsync=array();
 		 foreach($this->filesets as $fs) {
             $ds = $fs->getDirectoryScanner($project);
             $fromDir  = $fs->getDir($project);
@@ -257,7 +266,6 @@ class FileSyncTask extends Task
 				$multrsync[]='rsync '.escapeshellcmd($options.' ' . $file->getCanonicalPath() . ' ' . $this->destinationDir.$filename).' 2>&1';
             }
         }
-		print_r($multrsync);
         
         return $multrsync;
     }
