@@ -184,18 +184,20 @@ class FileSyncTask extends Task
         
         $output = array();
         $return = null;
-        exec($command, $output, $return);
-        if ($return != 0) {
-            $this->log('Task exited with code: ' . $return, Project::MSG_INFO);
-            $this->log('Task exited with message: (' . $return . ') ' . $this->getErrorMessage($return), Project::MSG_INFO);
-            $this->log($command);
-            return 1;
-        } else {
-            foreach ($output as $line) {
-                print $line . "\r\n";
-            }
-            return 0;
-        }
+        foreach ($command as $comm) exec($comm, $output, $return);
+		print_r($return);
+		return true;
+        // if ($return != 0) {
+            // $this->log('Task exited with code: ' . $return, Project::MSG_INFO);
+            // $this->log('Task exited with message: (' . $return . ') ' . $this->getErrorMessage($return), Project::MSG_INFO);
+            // $this->log($command);
+            // return 1;
+        // } else {
+            // foreach ($output as $line) {
+                // print $line . "\r\n";
+            // }
+            // return 0;
+        // }
     }
     
     
@@ -235,7 +237,6 @@ class FileSyncTask extends Task
         }
         
         $this->setOptions($options);
-        
 		
         $project = $this->getProject();
 		$sources=$dests=array();
@@ -251,21 +252,14 @@ class FileSyncTask extends Task
             // }
             foreach($srcFiles as $filename) {
                 $file = new PhingFile($fromDir->getAbsolutePath(), $filename);
-                if($convert)
+                // if($convert)
                     $filename = str_replace('\\', '/', $filename);
-               $sources[]=$file->getCanonicalPath();
-			   $dests[]=$filename;
+				$multrsync[]='rsync '.escapeshellcmd($options.' ' . $file->getCanonicalPath() . ' ' . $this->destinationDir.$filename).' 2>&1';
             }
         }
-		print_r($sources);
-		print_r($dests);
-		$options.=' '.implode(' ',$sources).' ... '.implode(' ',$dests).' ';
-		echo $options;
+		print_r($multrsync);
         
-        escapeshellcmd($options);
-        $options .= ' 2>&1';
-        
-        return 'rsync ' . $options;
+        return $multrsync;
     }
     
     /**
