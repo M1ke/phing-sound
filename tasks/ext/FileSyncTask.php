@@ -167,29 +167,11 @@ class FileSyncTask extends Task
      */
     public function executeCommand() 
     {
-        
-        if ($this->sourceDir === null) {
-            throw new BuildException('The "sourcedir" attribute is missing or undefined.');
-        } else if ($this->destinationDir === null) {
-            throw new BuildException('The "destinationdir" attribute is missing or undefined.');
-        }
-        
         if (strpos($this->destinationDir, '@')) {
             $this->setIsRemoteConnection(true);
         } else {
             if (! (is_dir($this->destinationDir) && is_readable($this->destinationDir))) {
                 throw new BuildException("No such file or directory: " . $this->destinationDir);
-            }
-        }
-        
-        if (strpos($this->sourceDir, '@')) {
-            if ($this->isRemoteConnection) {
-                throw new BuildException('The source and destination cannot both be remote.');
-            }
-            $this->setIsRemoteConnection(true);
-        } else {
-            if (! (is_dir($this->sourceDir) && is_readable($this->sourceDir))) {
-                throw new BuildException('No such file or directory: ' . $this->sourceDir);
             }
         }
         
@@ -262,24 +244,23 @@ class FileSyncTask extends Task
             $fromDir  = $fs->getDir($project);
             $srcFiles = $ds->getIncludedFiles();
             $srcDirs  = $ds->getIncludedDirectories();
-            foreach($srcDirs as $dirname) {
-				echo 'Working on dir: '.$dirname."\r\n";
-				$sources[]=$dirname;
-				$dests[]=$dirname;
-            }
+            // foreach($srcDirs as $dirname) {
+				// echo 'Working on dir: '.$dirname."\r\n";
+				// $sources[]= $fromDir.$dirname;
+				// $dests[]=$dirname;
+            // }
             foreach($srcFiles as $filename) {
                 $file = new PhingFile($fromDir->getAbsolutePath(), $filename);
                 if($convert)
                     $filename = str_replace('\\', '/', $filename);
-               $sources[]=$filename;
-			   $dests[]=$file->getCanonicalPath();
+               $sources[]=$file->getCanonicalPath();
+			   $dests[]=$filename;
             }
         }
 		print_r($sources);
 		print_r($dests);
-		$options.=implode(' ',$sources).' ... '.implode(' ',$dests);
+		$options.=' '.implode(' ',$sources).' ... '.implode(' ',$dests).' ';
 		echo $options;
-		throw new BuildException('Testing');
         
         escapeshellcmd($options);
         $options .= ' 2>&1';
