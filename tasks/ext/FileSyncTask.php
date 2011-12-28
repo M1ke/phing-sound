@@ -156,6 +156,7 @@ class FileSyncTask extends Task
      */
     public function main() 
     {
+		echo 'FileSync'."\r\n";
         $this->executeCommand();
     }
     
@@ -171,7 +172,7 @@ class FileSyncTask extends Task
             $this->setIsRemoteConnection(true);
         } else {
             if (! (is_dir($this->destinationDir) && is_readable($this->destinationDir))) {
-                throw new BuildException("No such file or directory: " . $this->destinationDir);
+                throw new BuildException("No such destination file or directory: " . $this->destinationDir);
             }
         }
         
@@ -217,6 +218,7 @@ class FileSyncTask extends Task
      */
     public function getCommand()
     {
+		echo 'get command'."\r\n";
         $options = '-raz';
         if ($this->options !== null) {
             $options = $this->options;
@@ -249,9 +251,12 @@ class FileSyncTask extends Task
 		
         $project = $this->getProject();
 		$multrsync=array();
+		echo 'filesets start'."\r\n";
 		 foreach($this->filesets as $fs) {
+		 echo 'this fileset'."\r\n";
             $ds = $fs->getDirectoryScanner($project);
             $fromDir  = $fs->getDir($project);
+			echo $fromDir."\r\n";
             $srcFiles = $ds->getIncludedFiles();
             $srcDirs  = $ds->getIncludedDirectories();
             // foreach($srcDirs as $dirname) {
@@ -260,13 +265,15 @@ class FileSyncTask extends Task
 				// $dests[]=$dirname;
             // }
             foreach($srcFiles as $filename) {
+				echo 'Making file command'."\r\n";
+				echo $filename."\r\n";
                 $file = new PhingFile($fromDir->getAbsolutePath(), $filename);
                 // if($convert)
                     $filename = str_replace('\\', '/', $filename);
 				$multrsync[]='rsync '.escapeshellcmd($options.' ' . $this->sourceDir.$filename . ' ' . $this->destinationDir.$filename).' 2>&1';
             }
         }
-        
+		echo 'filesets over'."\r\n";
         return $multrsync;
     }
     
