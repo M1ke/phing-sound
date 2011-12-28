@@ -137,7 +137,6 @@ class FileSyncTask extends Task
      * @var string
      */
     protected $identityFile;
-<<<<<<< HEAD
 	
 	
     public $filesets;
@@ -149,8 +148,6 @@ class FileSyncTask extends Task
         $num = array_push($this->filesets, new FileSet());
         return $this->filesets[$num-1];
     }
-=======
->>>>>>> 30fee910bf2dad7e112e2f5ca737be6c3fb3085c
     
     /**
      * Phing's main method. Wraps the executeCommand() method.
