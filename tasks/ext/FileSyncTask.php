@@ -137,6 +137,7 @@ class FileSyncTask extends Task
      * @var string
      */
     protected $identityFile;
+<<<<<<< HEAD
 	
 	
     public $filesets;
@@ -148,6 +149,8 @@ class FileSyncTask extends Task
         $num = array_push($this->filesets, new FileSet());
         return $this->filesets[$num-1];
     }
+=======
+>>>>>>> 30fee910bf2dad7e112e2f5ca737be6c3fb3085c
     
     /**
      * Phing's main method. Wraps the executeCommand() method.
@@ -184,11 +187,29 @@ class FileSyncTask extends Task
             }
         }
 		throw new BuildException('Testing');
+        
+        if ($this->sourceDir === null) {
+            throw new BuildException('The "sourcedir" attribute is missing or undefined.');
+        } else if ($this->destinationDir === null) {
+            throw new BuildException('The "destinationdir" attribute is missing or undefined.');
+        }
+        
         if (strpos($this->destinationDir, '@')) {
             $this->setIsRemoteConnection(true);
         } else {
             if (! (is_dir($this->destinationDir) && is_readable($this->destinationDir))) {
                 throw new BuildException("No such file or directory: " . $this->destinationDir);
+            }
+        }
+        
+        if (strpos($this->sourceDir, '@')) {
+            if ($this->isRemoteConnection) {
+                throw new BuildException('The source and destination cannot both be remote.');
+            }
+            $this->setIsRemoteConnection(true);
+        } else {
+            if (! (is_dir($this->sourceDir) && is_readable($this->sourceDir))) {
+                throw new BuildException('No such file or directory: ' . $this->sourceDir);
             }
         }
         
