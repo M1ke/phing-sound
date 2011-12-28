@@ -155,29 +155,13 @@ class FileSyncTask extends Task
      * @throws BuildException
      */
     public function executeCommand() 
-    {        
-        if ($this->sourceDir === null) {
-            throw new BuildException('The "sourcedir" attribute is missing or undefined.');
-        } else if ($this->destinationDir === null) {
-            throw new BuildException('The "destinationdir" attribute is missing or undefined.');
-        }
+    {
         
         if (strpos($this->destinationDir, '@')) {
             $this->setIsRemoteConnection(true);
         } else {
             if (! (is_dir($this->destinationDir) && is_readable($this->destinationDir))) {
                 throw new BuildException("No such file or directory: " . $this->destinationDir);
-            }
-        }
-        
-        if (strpos($this->sourceDir, '@')) {
-            if ($this->isRemoteConnection) {
-                throw new BuildException('The source and destination cannot both be remote.');
-            }
-            $this->setIsRemoteConnection(true);
-        } else {
-            if (! (is_dir($this->sourceDir) && is_readable($this->sourceDir))) {
-                throw new BuildException('No such file or directory: ' . $this->sourceDir);
             }
         }
         
