@@ -137,6 +137,17 @@ class FileSyncTask extends Task
      * @var string
      */
     protected $identityFile;
+	
+	
+    public $filesets;
+    public function __construct() {
+        $this->filesets = array();
+        $this->completeDirMap = array();
+    }
+    public function createFileSet() {
+        $num = array_push($this->filesets, new FileSet());
+        return $this->filesets[$num-1];
+    }
     
     /**
      * Phing's main method. Wraps the executeCommand() method.
@@ -156,7 +167,23 @@ class FileSyncTask extends Task
      */
     public function executeCommand() 
     {
-        
+        $project = $this->getProject();
+		 foreach($this->filesets as $fs) {
+            $ds = $fs->getDirectoryScanner($project);
+            $fromDir  = $fs->getDir($project);
+            $srcFiles = $ds->getIncludedFiles();
+            $srcDirs  = $ds->getIncludedDirectories();
+            foreach($srcDirs as $dirname) {
+				echo 'Working on dir: '.$dirname."\r\n";
+            }
+            foreach($srcFiles as $filename) {
+                $file = new PhingFile($fromDir->getAbsolutePath(), $filename);
+                if($convert)
+                    $filename = str_replace('\\', '/', $filename);
+                echo 'Will copy '.$file->getCanonicalPath().' to '.$filename."\r\n";
+            }
+        }
+		throw new BuildException('Testing');
         if (strpos($this->destinationDir, '@')) {
             $this->setIsRemoteConnection(true);
         } else {
