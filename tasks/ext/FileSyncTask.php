@@ -263,7 +263,7 @@ class FileSyncTask extends Task
                 $file = new PhingFile($fromDir->getAbsolutePath(), $filename);
                 // if($convert)
                     $filename = str_replace('\\', '/', $filename);
-				$multrsync[]='rsync '.escapeshellcmd($options.' ' . $file->getCanonicalPath() . ' ' . $this->destinationDir.$filename).' 2>&1';
+				$multrsync[]='rsync '.escapeshellcmd($options.' ' . $this->sourceDir.$filename . ' ' . $this->destinationDir.$filename).' 2>&1';
             }
         }
         
