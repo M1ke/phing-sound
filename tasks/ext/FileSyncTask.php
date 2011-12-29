@@ -259,21 +259,23 @@ class FileSyncTask extends Task
 			echo $fromDir."\r\n";
             $srcFiles = $ds->getIncludedFiles();
             $srcDirs  = $ds->getIncludedDirectories();
-            // foreach($srcDirs as $dirname) {
-				// echo 'Working on dir: '.$dirname."\r\n";
-				// $sources[]= $fromDir.$dirname;
-				// $dests[]=$dirname;
-            // }
+			print_r($srcFiles);
+			print_r($srcDirs);
+            foreach($srcDirs as $dirname) {
+				echo 'Working on dir: '.$dirname."\r\n";
+				$multrsync[]='rsync '.escapeshellcmd($options.' '.$this->sourceDir.$dirname.' '.$this->destinationDir.$dirname).' 2>&1';
+            }
             foreach($srcFiles as $filename) {
 				echo 'Making file command'."\r\n";
 				echo $filename."\r\n";
                 $file = new PhingFile($fromDir->getAbsolutePath(), $filename);
                 // if($convert)
                     $filename = str_replace('\\', '/', $filename);
-				$multrsync[]='rsync '.escapeshellcmd($options.' ' . $this->sourceDir.$filename . ' ' . $this->destinationDir.$filename).' 2>&1';
+				$sources[]=$this->sourceDir.$filename;
+				$dests[]=$this->destinationDir.$filename;
             }
         }
-		echo 'filesets over'."\r\n";
+		$options='rsync '.escapeshellcmd($options.' '.implode(' ',$sources).' '.$this->destinationDir.$filename).' 2>&1';
         return $multrsync;
     }
     
