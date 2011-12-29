@@ -181,10 +181,11 @@ class FileSyncTask extends Task
         
         $command = $this->getCommand();
         print $this->getInformation();
-        
+        echo $command."\r\n";
         $output = array();
         $return = null;
 		exec($command, $output, $return);
+		unlink('temp.txt');
         if ($return != 0) {
             $this->log('Task exited with code: ' . $return, Project::MSG_INFO);
             $this->log('Task exited with message: (' . $return . ') ' . $this->getErrorMessage($return), Project::MSG_INFO);
@@ -253,7 +254,11 @@ class FileSyncTask extends Task
 				$sources[]=$this->sourceDir.$filename;
             }
         }
-		$options='rsync '.escapeshellcmd($options.' '.implode(' ',$sources).' '.$this->destinationDir).' 2>&1';
+		$sources=implode("\n",$sources);
+		$fh=fopen('temp.txt','+w');
+		fwrite($fh,$sources);
+		fclose($fh);
+		$options='rsync '.escapeshellcmd($options.' -files-from=temp.txt '.$this->sourceDir.' '.$this->destinationDir).' 2>&1';
         return $options;
     }
     
