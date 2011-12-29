@@ -185,29 +185,18 @@ class FileSyncTask extends Task
         
         $output = array();
         $return = null;
-        foreach ($command as $comm)
-		{
-			echo 'Cmd'."\r\n";
-			echo $comm."\r\n";
-			$output = array();
-			exec($comm, $output, $return);
-			echo 'Output'."\r\n";
-			print_r($output);
-			echo 'Return'."\r\n";
-			print_r($return);
-		}
-		return true;
-        // if ($return != 0) {
-            // $this->log('Task exited with code: ' . $return, Project::MSG_INFO);
-            // $this->log('Task exited with message: (' . $return . ') ' . $this->getErrorMessage($return), Project::MSG_INFO);
-            // $this->log($command);
-            // return 1;
-        // } else {
-            // foreach ($output as $line) {
-                // print $line . "\r\n";
-            // }
-            // return 0;
-        // }
+		exec($command, $output, $return);
+        if ($return != 0) {
+            $this->log('Task exited with code: ' . $return, Project::MSG_INFO);
+            $this->log('Task exited with message: (' . $return . ') ' . $this->getErrorMessage($return), Project::MSG_INFO);
+            $this->log($command);
+            return 1;
+        } else {
+            foreach ($output as $line) {
+                print $line . "\r\n";
+            }
+            return 0;
+        }
     }
     
     
@@ -250,33 +239,24 @@ class FileSyncTask extends Task
         $this->setOptions($options);
 		
         $project = $this->getProject();
-		$multrsync=array();
-		echo 'filesets start'."\r\n";
+		$sources=array();
 		 foreach($this->filesets as $fs) {
-		 echo 'this fileset'."\r\n";
             $ds = $fs->getDirectoryScanner($project);
             $fromDir  = $fs->getDir($project);
-			echo $fromDir."\r\n";
             $srcFiles = $ds->getIncludedFiles();
             $srcDirs  = $ds->getIncludedDirectories();
-			print_r($srcFiles);
-			print_r($srcDirs);
             foreach($srcDirs as $dirname) {
-				echo 'Working on dir: '.$dirname."\r\n";
-				$multrsync[]='rsync '.escapeshellcmd($options.' '.$this->sourceDir.$dirname.' '.$this->destinationDir.$dirname).' 2>&1';
+				// $multrsync[]='rsync '.escapeshellcmd($options.' '.$this->sourceDir.$dirname.' '.$this->destinationDir.$dirname).' 2>&1';
             }
             foreach($srcFiles as $filename) {
-				echo 'Making file command'."\r\n";
-				echo $filename."\r\n";
                 $file = new PhingFile($fromDir->getAbsolutePath(), $filename);
                 // if($convert)
                     $filename = str_replace('\\', '/', $filename);
 				$sources[]=$this->sourceDir.$filename;
-				$dests[]=$this->destinationDir.$filename;
             }
         }
-		$options='rsync '.escapeshellcmd($options.' '.implode(' ',$sources).' '.$this->destinationDir.$filename).' 2>&1';
-        return $multrsync;
+		$options='rsync '.escapeshellcmd($options.' '.implode(' ',$sources).' '.$this->destinationDir).' 2>&1';
+        return $options;
     }
     
     /**
