@@ -156,7 +156,6 @@ class FileSyncTask extends Task
      */
     public function main() 
     {
-		echo 'FileSync'."\r\n";
         $this->executeCommand();
     }
     
@@ -207,7 +206,6 @@ class FileSyncTask extends Task
      */
     public function getCommand()
     {
-		echo 'get command'."\r\n";
         $options = '-raz';
         if ($this->options !== null) {
             $options = $this->options;
