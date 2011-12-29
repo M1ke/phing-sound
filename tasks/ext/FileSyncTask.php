@@ -231,9 +231,6 @@ class FileSyncTask extends Task
         if ($this->backupDir !== null) {
             $options .= ' -b --backup-dir=' . $this->backupDir;
         }
-        if ($this->excludeFile !== null) {
-            $options .= ' --exclude-from=' . $this->excludeFile;
-        }
         
         $this->setOptions($options);
 		
@@ -243,22 +240,17 @@ class FileSyncTask extends Task
             $ds = $fs->getDirectoryScanner($project);
             $fromDir  = $fs->getDir($project);
             $srcFiles = $ds->getIncludedFiles();
-            $srcDirs  = $ds->getIncludedDirectories();
-            foreach($srcDirs as $dirname) {
-				// $multrsync[]='rsync '.escapeshellcmd($options.' '.$this->sourceDir.$dirname.' '.$this->destinationDir.$dirname).' 2>&1';
-            }
             foreach($srcFiles as $filename) {
                 $file = new PhingFile($fromDir->getAbsolutePath(), $filename);
-                // if($convert)
-                    $filename = str_replace('\\', '/', $filename);
+                if (!$win) $filename = str_replace('\\', '/', $filename);
 				$sources[]=$this->sourceDir.$filename;
             }
         }
 		$sources=implode("\n",$sources);
-		$fh=fopen('temp.txt','+w');
+		$fh=fopen('temp.txt','w');
 		fwrite($fh,$sources);
 		fclose($fh);
-		$options='rsync '.escapeshellcmd($options.' -files-from=temp.txt '.$this->sourceDir.' '.$this->destinationDir).' 2>&1';
+		$options='rsync '.escapeshellcmd($options.' --files-from=temp.txt '.$this->sourceDir.' '.$this->destinationDir).' 2>&1';
         return $options;
     }
     
@@ -270,11 +262,6 @@ class FileSyncTask extends Task
     public function getInformation() 
     {
         $server = ($this->isRemoteConnection) ? 'remote' : 'local';
-        
-        $excludePatterns = '(none)';
-        if (file_exists($this->excludeFile)) {
-            $excludePatterns = @file_get_contents($this->excludeFile);
-        }
         
         $lf = "\r\n";
         $dlf = $lf . $lf;
@@ -289,9 +276,6 @@ class FileSyncTask extends Task
         $info .= 'Destination:   ' . $this->destinationDir  . $lf;
         $info .= 'Identity       ' . $this->identityFile    . $lf;
         $info .= 'Backup:        ' . $this->backupDir       . $dlf;
-        $info .= 'Exclude patterns'                         . $lf;
-        $info .= '----------------------------------------' . $lf;
-        $info .= $excludePatterns                           . $lf;
 
         return $info;
     }
