@@ -138,6 +138,12 @@ class FileSyncTask extends Task
      */
     protected $identityFile;
 	
+    /**
+     * This option ignores the file listing and just duplicates the directory structure.
+     * @var boolean
+     */
+	protected $dirToDir = false;
+	
 	
     public $filesets;
     public function __construct() {
@@ -170,9 +176,9 @@ class FileSyncTask extends Task
         if (strpos($this->destinationDir, '@')) {
             $this->setIsRemoteConnection(true);
         } else {
-            if (! (is_dir($this->destinationDir) && is_readable($this->destinationDir))) {
-                throw new BuildException("No such destination file or directory: " . $this->destinationDir);
-            }
+            // if (! (is_dir($this->destinationDir) && is_readable($this->destinationDir))) {
+                // throw new BuildException("No such destination file or directory: " . $this->destinationDir);
+            // }
         }
         
         if ($this->backupDir !== null && $this->backupDir == $this->destinationDir) {
@@ -234,6 +240,13 @@ class FileSyncTask extends Task
         
         $this->setOptions($options);
 		
+		if ($this->dirToDir===true)
+		{
+			$options='rsync '.escapeshellcmd($options.' '.$this->sourceDir.' '.$this->destinationDir).' 2>&1';
+		}
+		else
+		{
+		
         $project = $this->getProject();
 		$sources=array();
 		 foreach($this->filesets as $fs) {
@@ -243,7 +256,7 @@ class FileSyncTask extends Task
             foreach($srcFiles as $filename) {
                 $file = new PhingFile($fromDir->getAbsolutePath(), $filename);
                 if (!$win) $filename = str_replace('\\', '/', $filename);
-				$sources[]=$this->sourceDir.$filename;
+				$sources[]=$filename;
             }
         }
 		$sources=implode("\n",$sources);
@@ -251,6 +264,7 @@ class FileSyncTask extends Task
 		fwrite($fh,$sources);
 		fclose($fh);
 		$options='rsync '.escapeshellcmd($options.' --files-from=temp.txt '.$this->sourceDir.' '.$this->destinationDir).' 2>&1';
+		}
         return $options;
     }
     
@@ -467,5 +481,15 @@ class FileSyncTask extends Task
     public function setIdentityFile($identity) 
     {
         $this->identityFile = $identity;
+    }
+    
+    /**
+     * Sets the dirtodir option.
+     * 
+     * @param boolean $dir
+     */
+    public function setDirToDir($dir) 
+    {
+        $this->dirToDir = $dir;
     }
 }
