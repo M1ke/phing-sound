@@ -246,24 +246,23 @@ class FileSyncTask extends Task
 		}
 		else
 		{
-		
-        $project = $this->getProject();
-		$sources=array();
-		 foreach($this->filesets as $fs) {
-            $ds = $fs->getDirectoryScanner($project);
-            $fromDir  = $fs->getDir($project);
-            $srcFiles = $ds->getIncludedFiles();
-            foreach($srcFiles as $filename) {
-                $file = new PhingFile($fromDir->getAbsolutePath(), $filename);
-                if (!$win) $filename = str_replace('\\', '/', $filename);
-				$sources[]=$filename;
-            }
-        }
-		$sources=implode("\n",$sources);
-		$fh=fopen('temp.txt','w');
-		fwrite($fh,$sources);
-		fclose($fh);
-		$options='rsync '.escapeshellcmd($options.' --files-from=temp.txt '.$this->sourceDir.' '.$this->destinationDir).' 2>&1';
+			$project = $this->getProject();
+			$sources=array();
+			 foreach($this->filesets as $fs) {
+				$ds = $fs->getDirectoryScanner($project);
+				$fromDir  = $fs->getDir($project);
+				$srcFiles = $ds->getIncludedFiles();
+				foreach($srcFiles as $filename) {
+					$file = new PhingFile($fromDir->getAbsolutePath(), $filename);
+					if (!$win) $filename = str_replace('\\', '/', $filename);
+					$sources[]=$filename;
+				}
+			}
+			$sources=implode("\n",$sources);
+			$fh=fopen('temp.txt','w');
+			fwrite($fh,$sources);
+			fclose($fh);
+			$options='rsync '.escapeshellcmd($options.' --files-from=temp.txt '.$this->sourceDir.' '.$this->destinationDir).' 2>&1';
 		}
         return $options;
     }
