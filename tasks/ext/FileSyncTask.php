@@ -144,6 +144,12 @@ class FileSyncTask extends Task
      */
 	protected $dirToDir = false;
 	
+    /**
+     * This option will add a chmod flag to the rsync
+     * @var string
+     */
+	protected $chmod;
+	
 	
     public $filesets;
     public function __construct() {
@@ -191,7 +197,7 @@ class FileSyncTask extends Task
         $output = array();
         $return = null;
 		exec($command, $output, $return);
-		unlink('temp.txt');
+		@unlink('temp.txt');
         if ($return != 0) {
             $this->log('Task exited with code: ' . $return, Project::MSG_INFO);
             $this->log('Task exited with message: (' . $return . ') ' . $this->getErrorMessage($return), Project::MSG_INFO);
@@ -242,6 +248,7 @@ class FileSyncTask extends Task
 		
 		if ($this->dirToDir===true)
 		{
+			if (!empty($this->chmod)) $options.=' --chmod="'.$this->chmod.'"';
 			$options='rsync '.escapeshellcmd($options.' '.$this->sourceDir.' '.$this->destinationDir).' 2>&1';
 		}
 		else
@@ -286,9 +293,7 @@ class FileSyncTask extends Task
         $info .= 'Sync files to ' . $server . ' server'     . $lf;
         $info .= '----------------------------------------' . $lf;
         $info .= 'Source:        ' . $this->sourceDir       . $lf;
-        $info .= 'Destination:   ' . $this->destinationDir  . $lf;
-        $info .= 'Identity       ' . $this->identityFile    . $lf;
-        $info .= 'Backup:        ' . $this->backupDir       . $dlf;
+        $info .= 'Destination:   ' . $this->destinationDir  . $dlf;
 
         return $info;
     }
@@ -490,5 +495,15 @@ class FileSyncTask extends Task
     public function setDirToDir($dir) 
     {
         $this->dirToDir = $dir;
+    }
+    
+    /**
+     * Sets the chmod option.
+     * 
+     * @param string $chmod
+     */
+    public function setChmod($chmod) 
+    {
+        $this->chmod = $chmod;
     }
 }
