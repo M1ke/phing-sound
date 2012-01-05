@@ -146,9 +146,9 @@ class FileSyncTask extends Task
 	
     /**
      * This option will add a chmod flag to the rsync
-     * @var string
+     * @var string defaults to the letter representation of 755
      */
-	protected $chmod;
+	protected $chmod='u=rwx,go=rx';
 	
 	
     public $filesets;
