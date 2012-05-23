@@ -8,7 +8,7 @@ A really simple Phing task to play a Windows sound at any point during a Phing b
 + Add a Phing `taskdef` element to the top of your build file
 	`<taskdef name="sound" classname="phing.tasks.ext.SoundTask"/>`
 + Anywhere in your build file you can now add the `<sound/>` element to trigger a sound.
-+ You can optionall pass the _sound_ attribute with one of the following sounds:
++ You can optionally pass the _sound_ attribute with one of the following sounds:
 	+ `MB_ICONERROR` - The sound specified as the Windows Critical Stop sound.
 	+ `MB_ICONINFORMATION` - The sound specified as the Windows Asterisk sound.
 	+ `MB_ICONQUESTION` - The sound specified as the Windows Question sound.
